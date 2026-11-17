@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Post a Job - Catch Part Time</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial;padding:18px}
+.card{max-width:650px;margin:25px auto;background:#191919;border:1px solid #c5a34d;border-radius:14px;padding:24px}
+h1{text-align:center;color:#e0bd65}
+label{display:block;margin-top:16px;color:#e0bd65}
+input,select,textarea{width:100%;padding:13px;margin-top:7px;background:#252525;color:white;border:1px solid #555;border-radius:7px}
+textarea{min-height:120px}
+button{width:100%;padding:14px;margin-top:22px;background:#d5b45d;border:0;border-radius:7px;font-weight:bold}
+a{color:#e0bd65}
+#message{margin-top:15px;text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Catch Part Time</h1>
+<h2>Post a Part-Time Job</h2>
+<p>Reach job seekers across the UAE.</p>
+
+<form id="jobForm">
+<label>Job Title</label>
+<input id="title" required placeholder="Example: Babysitter">
+
+<label>Job Category</label>
+<select id="category" required>
+<option value="">Select category</option>
+<option>Pet Care & Pet Sitting</option>
+<option>Baby Care & Babysitting</option>
+<option>Nanny & Childcare</option>
+<option>Elderly Care</option>
+<option>Housekeeping</option>
+<option>Home Cleaning</option>
+<option>Gardening</option>
+<option>Personal Assistant</option>
+<option>Private Tutoring</option>
+<option>Event Staff</option>
+<option>Restaurant & Hotel</option>
+<option>Sales & Retail</option>
+<option>Delivery</option>
+<option>Office & Admin</option>
+<option>Construction</option>
+<option>Customer Service</option>
+<option>Security</option>
+<option>Other</option>
+</select>
+
+<label>Emirate</label>
+<select id="emirate" required>
+<option value="">Select emirate</option>
+<option>Abu Dhabi</option>
+<option>Dubai</option>
+<option>Sharjah</option>
+<option>Ajman</option>
+<option>Umm Al Quwain</option>
+<option>Ras Al Khaimah</option>
+<option>Fujairah</option>
+</select>
+
+<label>Job Location</label>
+<input id="location" required placeholder="Area or neighbourhood">
+
+<label>Salary</label>
+<input id="salary" placeholder="Example: AED 100 per day">
+
+<label>Job Description</label>
+<textarea id="description" required placeholder="Describe the duties, working hours and requirements"></textarea>
+
+<button id="submitBtn" type="submit">SUBMIT JOB FOR APPROVAL</button>
+</form>
+
+<div id="message"></div>
+<p><a href="dashboard.html">My Dashboard</a> | <a href="jobs.html">Browse Jobs</a></p>
+</div>
+
+<script>
+const db=window.supabase.createClient(
+"https://cgpzbyugpvslfwzihvxv.supabase.co",
+"sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p"
+);
+
+document.getElementById("jobForm").addEventListener("submit",async e=>{
+e.preventDefault();
+const msg=document.getElementById("message");
+const btn=document.getElementById("submitBtn");
+btn.disabled=true;
+btn.textContent="SUBMITTING...";
+
+try{
+const {data,error:userError}=await db.auth.getUser();
+if(userError||!data.user) throw new Error("Please login before posting a job.");
+
+const {error}=await db.from("jobs").insert({
+employer_id:data.user.id,
+title:document.getElementById("title").value.trim(),
+category:document.getElementById("category").value,
+emirate:document.getElementById("emirate").value,
+location:document.getElementById("location").value.trim(),
+salary:document.getElementById("salary").value.trim(),
+description:document.getElementById("description").value.trim(),
+status:"pending"
+});
+
+if(error) throw error;
+
+msg.style.color="#e0bd65";
+msg.textContent="Job submitted successfully! It will appear after admin approval.";
+document.getElementById("jobForm").reset();
+
+}catch(error){
+msg.style.color="#ff7777";
+msg.textContent=error.message;
+}finally{
+btn.disabled=false;
+btn.textContent="SUBMIT JOB FOR APPROVAL";
+}
+});
+</script>
+</body>
+</html>
