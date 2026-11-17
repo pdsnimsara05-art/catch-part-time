@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register | Catch Part Time</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#fff;font-family:Arial,sans-serif;padding:25px 15px}
+.card{max-width:440px;margin:30px auto;background:#171717;padding:28px;border:1px solid #b89545;border-radius:15px}
+h1{text-align:center;color:#d8b45b}
+p{text-align:center;color:#bbb}
+label{display:block;margin-top:15px;color:#e5c778}
+input,select{width:100%;padding:13px;margin-top:7px;border-radius:7px;border:1px solid #555;background:#222;color:white}
+button{width:100%;padding:14px;margin-top:22px;background:#d8b45b;border:0;border-radius:7px;font-weight:bold;font-size:16px}
+#message{text-align:center;margin-top:15px}
+a{color:#e5c778}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Catch Part Time</h1>
+<p>Create your account</p>
+
+<form id="registerForm">
+<label>Full Name</label>
+<input id="name" required placeholder="Enter your full name">
+
+<label>Mobile Number</label>
+<input id="phone" type="tel" required placeholder="+971...">
+
+<label>Email Address</label>
+<input id="email" type="email" required placeholder="Enter your email">
+
+<label>Password</label>
+<input id="password" type="password" minlength="8" required placeholder="At least 8 characters">
+
+<label>Account Type</label>
+<select id="accountType" required>
+<option value="job_seeker">Job Seeker</option>
+<option value="employer">Employer</option>
+</select>
+
+<label>Preferred Language</label>
+<select id="language">
+<option value="en">English</option>
+<option value="ar">Arabic</option>
+</select>
+
+<button type="submit" id="submitBtn">CREATE ACCOUNT</button>
+</form>
+<div id="message"></div>
+<p><a href="index.html">Back to Home</a></p>
+</div>
+
+<script>
+const SUPABASE_URL = "https://cgpzbyugpvslfwzihvxv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+document.getElementById("registerForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const button = document.getElementById("submitBtn");
+  const message = document.getElementById("message");
+  button.disabled = true;
+  button.textContent = "CREATING ACCOUNT...";
+  message.textContent = "";
+
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const accountType = document.getElementById("accountType").value;
+  const language = document.getElementById("language").value;
+
+  try {
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: "https://pdsnimsara05-art.github.io/catch-part-time/",
+        data: {
+          full_name: name,
+          phone: phone,
+          account_type: accountType,
+          preferred_language: language
+        }
+      }
+    });
+
+    if (error) throw error;
+
+    message.style.color = "#e5c778";
+    message.textContent = data.session
+      ? "Account created successfully! You can now log in."
+      : "Registration received! Check your email to confirm your account.";
+
+  } catch (error) {
+    message.style.color = "#ff7777";
+    message.textContent = error.message;
+  } finally {
+    button.disabled = false;
+    button.textContent = "CREATE ACCOUNT";
+  }
+});
+</script>
+</body>
+</html>
