@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply for Job | Catch Part Time</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #090909;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 500px;
+      margin: 35px auto;
+      padding: 25px;
+      background: #171717;
+      border: 1px solid #b99538;
+      border-radius: 14px;
+    }
+    h1 { color: #e3bd58; text-align: center; }
+    p { color: #ccc; }
+    label { display: block; margin-top: 16px; }
+    textarea, input {
+      width: 100%;
+      margin-top: 8px;
+      padding: 13px;
+      border: 1px solid #555;
+      border-radius: 7px;
+      background: #242424;
+      color: white;
+      font-size: 16px;
+    }
+    textarea { min-height: 130px; resize: vertical; }
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      border: 0;
+      border-radius: 7px;
+      background: #d5ad43;
+      color: #111;
+      font-size: 17px;
+      font-weight: bold;
+    }
+    #message { margin-top: 15px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Apply for a Job</h1>
+  <p id="jobTitle">Loading job details...</p>
+
+  <form id="applyForm">
+    <label>Your application message</label>
+    <textarea id="messageText"
+      placeholder="Introduce yourself and explain why you are suitable for this job."
+      required></textarea>
+
+    <button type="submit">Submit Application</button>
+  </form>
+
+  <p id="message"></p>
+  <p><a href="jobs.html" style="color:#e3bd58;">Back to Jobs</a></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://cgpzbyugpvslfwzihvxv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+const jobId = new URLSearchParams(window.location.search).get("job");
+const form = document.getElementById("applyForm");
+const message = document.getElementById("message");
+
+async function loadJob() {
+  if (!jobId) {
+    document.getElementById("jobTitle").textContent =
+      "No job was selected. Please return to the jobs page.";
+    form.style.display = "none";
+    return;
+  }
+
+  const { data, error } = await db
+    .from("jobs")
+    .select("title, emirate, location")
+    .eq("id", jobId)
+    .eq("status", "approved")
+    .single();
+
+  if (error || !data) {
+    document.getElementById("jobTitle").textContent =
+      "This job is unavailable or has been closed.";
+    form.style.display = "none";
+    return;
+  }
+
+  document.getElementById("jobTitle").textContent =
+    data.title + " — " + data.location + ", " + data.emirate;
+}
+
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
+  message.textContent = "Submitting...";
+
+  const { data: userData, error: userError } = await db.auth.getUser();
+
+  if (userError || !userData.user) {
+    message.textContent = "Please log in before applying.";
+    return;
+  }
+
+  if (!jobId) {
+    message.textContent = "No job selected.";
+    return;
+  }
+
+  const { error } = await db.from("applications").insert({
+    job_id: jobId,
+    applicant_id: userData.user.id,
+    message: document.getElementById("messageText").value.trim(),
+    status: "pending"
+  });
+
+  if (error) {
+    message.textContent =
+      error.code === "23505"
+        ? "You have already applied for this job."
+        : "Application could not be submitted. Please try again later.";
+    return;
+  }
+
+  message.textContent = "Application submitted successfully!";
+  form.reset();
+});
+
+loadJob();
+</script>
+
+</body>
+</html>
