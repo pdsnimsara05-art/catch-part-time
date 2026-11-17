@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UAE Jobs - Catch Part Time</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#fff;font-family:Arial,sans-serif;padding:18px}
+header{text-align:center;padding:20px}
+h1{color:#d9b65e}
+h2{color:#e0bd65}
+.filters,.job{max-width:750px;margin:15px auto;background:#191919;border:1px solid #806b37;border-radius:12px;padding:18px}
+input,select{width:100%;padding:13px;margin:8px 0;background:#252525;color:white;border:1px solid #555;border-radius:7px}
+.job h3{color:#e4c46f}
+.job p{color:#ccc;line-height:1.5}
+button{padding:12px;background:#d7b45e;border:0;border-radius:7px;font-weight:bold}
+a{color:#e2bd65}
+#jobs{max-width:750px;margin:auto}
+.muted{color:#aaa;text-align:center}
+</style>
+</head>
+<body>
+<header>
+<h1>Catch Part Time</h1>
+<h2>Find Part-Time Jobs Across UAE</h2>
+<p>Discover your next opportunity</p>
+<a href="dashboard.html">My Dashboard</a> |
+<a href="index.html">Home</a>
+</header>
+
+<div class="filters">
+<h2>Search Jobs</h2>
+<input id="search" placeholder="Search job title or keyword">
+<select id="emirate">
+<option value="">All Emirates</option>
+<option>Abu Dhabi</option>
+<option>Dubai</option>
+<option>Sharjah</option>
+<option>Ajman</option>
+<option>Umm Al Quwain</option>
+<option>Ras Al Khaimah</option>
+<option>Fujairah</option>
+</select>
+<select id="category">
+<option value="">All Categories</option>
+<option>Restaurant & Hotel</option>
+<option>Sales & Retail</option>
+<option>Delivery</option>
+<option>Office & Admin</option>
+<option>Construction</option>
+<option>Cleaning</option>
+<option>Customer Service</option>
+<option>Other</option>
+</select>
+<button onclick="loadJobs()">SEARCH JOBS</button>
+</div>
+
+<div id="jobs"><p class="muted">Loading jobs...</p></div>
+
+<script>
+const db=window.supabase.createClient(
+"https://cgpzbyugpvslfwzihvxv.supabase.co",
+"sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p"
+);
+
+async function loadJobs(){
+const container=document.getElementById("jobs");
+container.innerHTML="<p class='muted'>Loading jobs...</p>";
+
+let query=db.from("jobs")
+.select("id,title,description,category,emirate,location,salary,created_at")
+.eq("status","approved")
+.order("created_at",{ascending:false});
+
+const emirate=document.getElementById("emirate").value;
+const category=document.getElementById("category").value;
+const search=document.getElementById("search").value.trim();
+
+if(emirate) query=query.eq("emirate",emirate);
+if(category) query=query.eq("category",category);
+if(search) query=query.ilike("title","%"+search+"%");
+
+const {data,error}=await query;
+
+if(error){
+container.innerHTML="<p class='muted'>Unable to load jobs. Please try again later.</p>";
+console.error(error);
+return;
+}
+
+if(!data.length){
+container.innerHTML="<p class='muted'>No approved jobs found yet. Please check again soon.</p>";
+return;
+}
+
+container.innerHTML=data.map(job=>`
+<div class="job">
+<h3>${escapeHTML(job.title)}</h3>
+<p><b>Emirate:</b> ${escapeHTML(job.emirate||"UAE")}</p>
+<p><b>Location:</b> ${escapeHTML(job.location||"Not specified")}</p>
+<p><b>Category:</b> ${escapeHTML(job.category||"Other")}</p>
+<p><b>Salary:</b> ${escapeHTML(job.salary||"Contact employer")}</p>
+<p>${escapeHTML(job.description||"")}</p>
+<button onclick="applyJob('${job.id}')">APPLY FOR JOB</button>
+</div>`).join("");
+}
+
+function escapeHTML(value){
+return String(value).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+}
+
+async function applyJob(jobId){
+const {data,error}=await db.auth.getUser();
+if(error||!data.user){
+alert("Please login before applying.");
+location.href="login.html";
+return;
+}
+location.href="apply.html?job="+encodeURIComponent(jobId);
+}
+
+loadJobs();
+</script>
+</body>
+</html>
