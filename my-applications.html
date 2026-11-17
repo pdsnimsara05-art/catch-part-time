@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Applications | Catch Part Time</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#090909;color:white;font-family:Arial,sans-serif}
+.container{max-width:750px;margin:30px auto}
+h1{color:#e3bd58;text-align:center}
+.card{background:#171717;border:1px solid #b99538;border-radius:12px;padding:18px;margin:15px 0}
+.status{color:#e3bd58;font-weight:bold}
+p{color:#ccc}
+a{color:#e3bd58}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>My Applications</h1>
+<p id="welcome">Loading your applications...</p>
+<div id="applications"></div>
+<p><a href="jobs.html">Browse Jobs</a> | <a href="dashboard.html">Dashboard</a></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://cgpzbyugpvslfwzihvxv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+async function loadApplications(){
+ const welcome=document.getElementById("welcome");
+ const output=document.getElementById("applications");
+
+ const {data:userData,error:userError}=await db.auth.getUser();
+ if(userError || !userData.user){
+  welcome.textContent="Please log in to view your applications.";
+  output.innerHTML='<p><a href="login.html">Go to Login</a></p>';
+  return;
+ }
+
+ welcome.textContent="Your submitted job applications";
+
+ const {data,error}=await db
+  .from("applications")
+  .select("id,message,status,created_at,jobs(title,emirate,location)")
+  .eq("applicant_id",userData.user.id)
+  .order("created_at",{ascending:false});
+
+ if(error){
+  output.textContent="Could not load applications. Please try again later.";
+  return;
+ }
+
+ if(!data || data.length===0){
+  output.innerHTML="<p>You haven't applied for any jobs yet.</p>";
+  return;
+ }
+
+ output.innerHTML=data.map(app=>{
+  const job=app.jobs;
+  const title=job ? job.title : "Job details unavailable";
+  const place=job ? (job.location||"")+", "+(job.emirate||"") : "";
+  const date=new Date(app.created_at).toLocaleDateString();
+  const status=String(app.status||"pending").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return `
+   <div class="card">
+    <h3>${escapeHTML(title)}</h3>
+    <p>${escapeHTML(place)}</p>
+    <p>Applied: ${escapeHTML(date)}</p>
+    <p>Status: <span class="status">${status}</span></p>
+    <p>Message: ${escapeHTML(app.message||"")}</p>
+   </div>`;
+ }).join("");
+}
+
+function escapeHTML(value){
+ return String(value).replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+loadApplications();
+</script>
+</body>
+</html>
