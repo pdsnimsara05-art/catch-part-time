@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login - Catch Part Time</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:white;font-family:Arial;padding:20px}
+.card{max-width:420px;margin:55px auto;background:#171717;border:1px solid #c6a34d;border-radius:14px;padding:28px}
+h1{text-align:center;color:#e0bd65}
+label{display:block;margin-top:18px;color:#e0bd65}
+input{width:100%;padding:14px;margin-top:8px;background:#252525;border:1px solid #555;border-radius:7px;color:white}
+button{width:100%;padding:14px;margin-top:22px;background:#d5b45d;border:0;border-radius:7px;font-weight:bold}
+p{text-align:center;color:#ccc}
+a{color:#e0bd65}
+#message{text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>Catch Part Time</h1>
+<p>Welcome back! Login to your account.</p>
+<form id="loginForm">
+<label>Email Address</label>
+<input id="email" type="email" required>
+<label>Password</label>
+<input id="password" type="password" required>
+<button id="loginBtn" type="submit">LOGIN</button>
+</form>
+<div id="message"></div>
+<p><a href="register.html">Create an account</a></p>
+<p><a href="index.html">Back to Home</a></p>
+</div>
+
+<script>
+const db = window.supabase.createClient(
+"https://cgpzbyugpvslfwzihvxv.supabase.co",
+"sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p"
+);
+
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+e.preventDefault();
+const btn=document.getElementById("loginBtn");
+const msg=document.getElementById("message");
+btn.disabled=true;
+btn.textContent="LOGGING IN...";
+try{
+const {data,error}=await db.auth.signInWithPassword({
+email:document.getElementById("email").value.trim(),
+password:document.getElementById("password").value
+});
+if(error) throw error;
+msg.style.color="#e0bd65";
+msg.textContent="Login successful! Your account is active.";
+setTimeout(()=>location.href="index.html",1200);
+}catch(error){
+msg.style.color="#ff7777";
+msg.textContent=error.message;
+}finally{
+btn.disabled=false;
+btn.textContent="LOGIN";
+}
+});
+</script>
+</body>
+</html>
