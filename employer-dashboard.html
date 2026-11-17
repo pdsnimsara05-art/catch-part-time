@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employer Dashboard | Catch Part Time</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:#090909;color:white;font-family:Arial,sans-serif}
+.container{max-width:800px;margin:30px auto}
+h1{color:#e3bd58;text-align:center}
+.card{background:#171717;border:1px solid #b99538;border-radius:12px;padding:18px;margin:15px 0}
+button,.btn{display:inline-block;background:#d5ad43;color:#111;padding:12px 16px;border:0;border-radius:7px;font-weight:bold;text-decoration:none;margin:5px 5px 5px 0}
+.status{color:#e3bd58;font-weight:bold}
+p{color:#ccc}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Employer Dashboard</h1>
+<p id="welcome">Checking your account...</p>
+<div>
+<a class="btn" href="post-job.html">Post a New Job</a>
+<a class="btn" href="index.html">Home</a>
+</div>
+<div id="jobs"></div>
+<button id="logout">Log Out</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://cgpzbyugpvslfwzihvxv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+function escapeHTML(value){
+ return String(value??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+async function loadDashboard(){
+ const welcome=document.getElementById("welcome");
+ const output=document.getElementById("jobs");
+
+ const {data:userData,error:userError}=await db.auth.getUser();
+ if(userError||!userData.user){
+  window.location.href="login.html";
+  return;
+ }
+
+ welcome.textContent="Logged in as: "+userData.user.email;
+
+ const {data,error}=await db.from("jobs")
+  .select("id,title,emirate,location,status,created_at")
+  .eq("employer_id",userData.user.id)
+  .order("created_at",{ascending:false});
+
+ if(error){
+  output.textContent="Unable to load your jobs. Database permissions may need checking.";
+  return;
+ }
+
+ if(!data||data.length===0){
+  output.innerHTML="<p>You haven't posted any jobs yet.</p>";
+  return;
+ }
+
+ output.innerHTML=data.map(job=>`
+  <div class="card">
+   <h3>${escapeHTML(job.title)}</h3>
+   <p>${escapeHTML(job.location)}, ${escapeHTML(job.emirate)}</p>
+   <p>Status: <span class="status">${escapeHTML(job.status)}</span></p>
+   <p>Posted: ${escapeHTML(new Date(job.created_at).toLocaleDateString())}</p>
+  </div>
+ `).join("");
+}
+
+document.getElementById("logout").addEventListener("click",async()=>{
+ await db.auth.signOut();
+ window.location.href="login.html";
+});
+
+loadDashboard();
+</script>
+</body>
+</html>
