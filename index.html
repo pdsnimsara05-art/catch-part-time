@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catch Part Time | UAE Jobs</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090909;color:#fff;font-family:Arial,sans-serif}
+header{padding:20px 6%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #292929}
+.logo{font-size:24px;font-weight:bold;color:#d6ad55}
+nav a{color:white;text-decoration:none;margin-left:16px;font-size:14px}
+button,.gold{background:#d6ad55;color:#090909;border:0;padding:12px 18px;border-radius:7px;font-weight:bold;cursor:pointer}
+.hero{text-align:center;padding:75px 18px 55px}
+.hero h1{font-size:clamp(32px,6vw,55px);margin:10px}
+.hero h1 span{color:#d6ad55}
+.hero p{color:#bbb;line-height:1.7}
+.search{display:flex;gap:10px;max-width:650px;margin:28px auto;flex-wrap:wrap}
+input,select{padding:14px;border-radius:7px;border:1px solid #555;background:#191919;color:white;min-width:0;flex:1}
+.search button{flex:0 0 auto}
+section{padding:35px 6%}
+h2{color:#d6ad55}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:#171717;border:1px solid #333;border-radius:12px;padding:20px}
+.card h3{margin-top:0}
+.card p{color:#bbb;line-height:1.5}
+.tag{color:#d6ad55;font-size:13px}
+footer{text-align:center;padding:30px;color:#aaa;border-top:1px solid #333}
+@media(max-width:600px){header{flex-wrap:wrap;gap:14px}nav a{margin-left:8px}.hero{padding-top:45px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">CATCH PART TIME</div>
+  <nav>
+    <a href="#jobs">Jobs</a>
+    <a href="#employers">Employers</a>
+    <a href="#about">About</a>
+  </nav>
+</header>
+
+<main>
+<div class="hero">
+  <div class="tag">YOUR UAE JOB SEARCH STARTS HERE</div>
+  <h1>Find Your Next <span>Opportunity</span></h1>
+  <p>Discover part-time, temporary and flexible jobs<br>across all seven Emirates of the UAE.</p>
+  <div class="search">
+    <input id="keyword" placeholder="Job title or keyword">
+    <select id="location">
+      <option value="">All Emirates</option>
+      <option>Abu Dhabi</option>
+      <option>Dubai</option>
+      <option>Sharjah</option>
+      <option>Ajman</option>
+      <option>Umm Al Quwain</option>
+      <option>Ras Al Khaimah</option>
+      <option>Fujairah</option>
+    </select>
+    <button onclick="searchJobs()">Search Jobs</button>
+  </div>
+</div>
+
+<section id="jobs">
+  <h2>Explore Job Categories</h2>
+  <div class="grid">
+    <div class="card"><h3>🍽️ Restaurant & Hotel</h3><p>Waiters, cooks, cleaners and hospitality staff.</p></div>
+    <div class="card"><h3>🛍️ Retail & Sales</h3><p>Shop assistants, promoters and sales staff.</p></div>
+    <div class="card"><h3>🚚 Delivery & Logistics</h3><p>Delivery, warehouse and logistics opportunities.</p></div>
+    <div class="card"><h3>💻 Office & IT</h3><p>Administration, data entry and technology jobs.</p></div>
+    <div class="card"><h3>🎪 Events & Promotion</h3><p>Event helpers, hosts and temporary staff.</p></div>
+    <div class="card"><h3>🧹 Cleaning & Maintenance</h3><p>Cleaning and maintenance opportunities.</p></div>
+  </div>
+  <p id="result" style="color:#d6ad55"></p>
+</section>
+
+<section id="employers">
+  <h2>Are You Hiring?</h2>
+  <div class="card">
+    <h3>Find the Right People</h3>
+    <p>Register as an employer and advertise your vacancies.</p>
+    <button onclick="alert('Employer registration will be available soon.')">Employer Registration</button>
+  </div>
+</section>
+
+<section id="about">
+  <h2>About Catch Part Time</h2>
+  <p style="color:#bbb;line-height:1.8">
+    Catch Part Time connects job seekers and employers across
+    the United Arab Emirates. Our goal is to make finding
+    flexible work opportunities easier.
+  </p>
+</section>
+</main>
+
+<footer>
+  © 2026 Catch Part Time | UAE
+  <p>English | العربية</p>
+</footer>
+
+<script>
+function searchJobs(){
+ const keyword=document.getElementById('keyword').value;
+ const location=document.getElementById('location').value;
+ document.getElementById('result').textContent =
+ 'Search prepared for: '+(keyword||'All jobs')+' | '+(location||'All Emirates')+
+ '. Live job listings are coming soon.';
+}
+</script>
+</body>
+</html>
