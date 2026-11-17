@@ -55,7 +55,7 @@ password:document.getElementById("password").value
 if(error) throw error;
 msg.style.color="#e0bd65";
 msg.textContent="Login successful! Your account is active.";
-setTimeout(()=>location.href="index.html",1200);
+setTimeout(()=>location.href="dashboard.html",1200);
 }catch(error){
 msg.style.color="#ff7777";
 msg.textContent=error.message;
