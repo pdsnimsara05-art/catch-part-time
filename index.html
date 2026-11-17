@@ -107,5 +107,23 @@ function searchJobs(){
  '. Live job listings are coming soon.';
 }
 </script>
+
+<!-- Catch Part Time - Supabase connection -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://cgpzbyugpvslfwzihvxv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wWRijS6oia3VEYLB3tlifQ_uaTiOa9p";
+
+const catchPartTimeDB = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+window.catchPartTimeDB = catchPartTimeDB;
+
+console.log("Catch Part Time backend connected!");
+</script>
+</body>
 </body>
 </html>
